@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="agenda" default="compilar">
+
+	<target name="limpar">
+		<delete dir="build" />
+		<mkdir  dir="build" />
+		<mkdir  dir="build/classes" />
+		<mkdir  dir="build/classes-teste" />
+	</target>
+
+	<target name="copiar-recursos" depends="limpar">
+		<copy todir="build/classes">
+			<fileset dir="src">
+				<include name="*.xml"/>
+			</fileset>
+		</copy>
+	</target>
+	<target name="compilar" depends="copiar-recursos">
+		<javac destdir="build/classes" srcdir="src\main\java">
+			<classpath>
+				<fileset dir="src\main\webapp\WEB-INF\lib">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="compilar-teste" depends="compilar">
+		<javac destdir="build/classes-teste" srcdir="src-teste">
+			<classpath>
+				<pathelement path="build/classes"/>
+				<fileset dir="lib-teste">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="WebContent/WEB-INF/lib">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="executar-teste" depends="compilar-teste">
+		<junit showoutput="true" printsummary="true">
+			<batchtest>
+				<formatter type="plain"/>
+				<fileset dir="src-teste">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+			<classpath>
+				<pathelement path="build/classes-teste"/>
+				<fileset dir="lib-teste">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="WebContent/WEB-INF/lib">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>	
+		</junit>
+	</target>
+	
+	<target name="empacotar" depends="compilar">
+		<war destfile="build/loja-ant.war" webxml="src/main/webapp/WEB-INF/web.xml">
+			<fileset dir="WebContent"/>
+			<classes dir= "build/classes"/>
+		</war>
+	</target>
+	
+	<target name="deploy-local" depends="empacotar">
+		<copy file="build/loja-ant.war" todir="C:\Users\Joatan\Documents\JavaWeb\apache-tomcat-8.0.26\webapps"/>
+	</target>
+	
+	<target name="rodar-tomcat-local" depends="deploy-local">
+		<exec executable="C:\Users\Joatan\Documents\JavaWeb\apache-tomcat-8.0.26/bin/startup.bat"/>
+	</target>
+</project>
